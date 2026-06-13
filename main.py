@@ -53,13 +53,30 @@ loss_fn = nn.BCEWithLogitsLoss()
 
 epochs = 1000
 for epoch in range(epochs):
+    model.train()
     y_hat = model(x_train)
-
     loss = loss_fn(y_hat, y_train)
 
     optimiser.zero_grad()
     loss.backward()
     optimiser.step()
 
-    if epoch %10 == 0:
-        print(f'Epoch {epoch:02d}: Loss = {loss.item():.4f}')
+
+model.eval()
+
+with torch.no_grad():
+
+    train_outputs = model(x_train)
+    train_predictions = (torch.sigmoid(train_outputs) > 0.5).float()
+
+    train_accuracy = ((train_predictions == y_train).float().mean())
+
+    test_outputs = model(x_test)
+
+    test_predictions = (torch.sigmoid(test_outputs) > 0.5).float()
+
+    test_accuracy = ((test_predictions == y_test).float().mean())
+
+print()
+print(f"Train Accuracy: {train_accuracy.item()*100:.2f}%")
+print(f"Test Accuracy : {test_accuracy.item()*100:.2f}%")
