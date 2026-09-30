@@ -22,4 +22,6 @@ def get_answers():
 
     return answers
 
-get_answers()
+def write_performance(performance):
+    df = pd.DataFrame({"Epoch":list(map(lambda x: x+1, range(len(performance)))), "Performance":performance})
+    df.to_excel("performance.xlsx")

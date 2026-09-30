@@ -63,7 +63,7 @@ for epoch in range(epochs):
 
     train_predictions = (torch.sigmoid(y_hat) > 0.5).float()
     train_accuracy = ((train_predictions == y_train).float().mean())
-    perf.append(str(train_accuracy.item()))
+    perf.append(float(train_accuracy.item()))
 
     
 
@@ -73,9 +73,7 @@ for epoch in range(epochs):
     loss.backward()
     optimiser.step()
 
-for number in perf:
-    with open("C:\\Users\\galde\\OneDrive\\Documents\\TitanicPredictionPytorch\\performance.txt", "a") as text_file:
-            text_file.write(number+'\n')
+data.write_performance(perf)
 
 model.eval()
 
@@ -92,6 +90,5 @@ with torch.no_grad():
 
     test_accuracy = ((test_predictions == y_test).float().mean())
 
-print()
 print(f"Train Accuracy: {train_accuracy.item()*100:.2f}%")
 print(f"Test Accuracy : {test_accuracy.item()*100:.2f}%")
