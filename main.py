@@ -6,6 +6,7 @@ import data
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
+
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 x = np.array(data.get_data(), dtype=np.float32)
@@ -38,9 +39,9 @@ class NeuralNetwork(nn.Module):
         super().__init__()
 
         self.network = nn.Sequential(
-            nn.Linear(7, 16),
+            nn.Linear(in_features, 16),
             nn.ReLU(),
-            nn.Linear(16, 1)
+            nn.Linear(16, out_features)
         )
 
     def forward(self, x):
@@ -51,16 +52,30 @@ learning_rate = 0.01
 optimiser = optim.Adam(model.parameters(), lr=learning_rate)
 loss_fn = nn.BCEWithLogitsLoss()
 
+perf = []
+
+
 epochs = 1000
 for epoch in range(epochs):
     model.train()
     y_hat = model(x_train)
     loss = loss_fn(y_hat, y_train)
 
+    train_predictions = (torch.sigmoid(y_hat) > 0.5).float()
+    train_accuracy = ((train_predictions == y_train).float().mean())
+    perf.append(str(train_accuracy.item()))
+
+    
+
+
+
     optimiser.zero_grad()
     loss.backward()
     optimiser.step()
 
+for number in perf:
+    with open("C:\\Users\\galde\\OneDrive\\Documents\\TitanicPredictionPytorch\\performance.txt", "a") as text_file:
+            text_file.write(number+'\n')
 
 model.eval()
 
