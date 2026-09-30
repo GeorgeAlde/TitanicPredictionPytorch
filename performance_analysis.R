@@ -1,0 +1,6 @@
+setwd("C:\\Users\\galde\\OneDrive\\Documents\\TitanicPredictionPytorch")
+file.exists("performance.xlsx")
+library(readxl)
+performance = read_excel(path = 'performance.xlsx', range="B1:C1001")
+plot(performance, pch = 20)
+plot(performance, log="x", pch = 20)
