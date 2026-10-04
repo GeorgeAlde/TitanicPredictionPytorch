@@ -34,6 +34,7 @@ x_test = torch.tensor(x_test, dtype=torch.float32, device=device)
 y_train = torch.tensor(y_train, dtype=torch.float32, device=device)
 y_test = torch.tensor(y_test, dtype=torch.float32, device=device)
 
+
 class NeuralNetwork(nn.Module):
     def __init__(self, in_features, out_features):
         super().__init__()
@@ -87,8 +88,26 @@ with torch.no_grad():
     test_outputs = model(x_test)
 
     test_predictions = (torch.sigmoid(test_outputs) > 0.5).float()
-
     test_accuracy = ((test_predictions == y_test).float().mean())
+
+    # We need the data in the original order so we can compare the models output with real outcomes directly in R
+    ordered_data = scaler.transform(x)
+
+    ordered_data = torch.tensor(
+        ordered_data,
+        dtype=torch.float32,
+        device=device
+    )
+
+    out = model(ordered_data)
+    out = (torch.sigmoid(out) > 0.5).int()
+    out = out.cpu().numpy().flatten()
+
+    data.write_predictions(out)
+
+
+
+
 
 print(f"Train Accuracy: {train_accuracy.item()*100:.2f}%")
 print(f"Test Accuracy : {test_accuracy.item()*100:.2f}%")
