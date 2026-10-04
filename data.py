@@ -33,6 +33,3 @@ def write_predictions(predictions):
     df.to_excel("predictions.xlsx")
 
 
-#def write_predictions(predictions):
-    #df = pd.DataFrame({"PassengerID":list(map(lambda x: x+1, range(len(predictions)))),"Survived":predictions})
-    #df.to_excel("predictions.xlsx")
