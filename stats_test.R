@@ -1,4 +1,4 @@
-#setwd("C:\\Users\\galde\\OneDrive\\Documents\\true_dataPredictionPytorch")
+setwd("C:\\Users\\galde\\OneDrive\\Documents\\TitanicPredictionPytorch")
 library(ggplot2)
 library(readxl)
 library(patchwork)
@@ -28,8 +28,11 @@ combined_data$PassengerId = NULL
 
 options(scipen=9999)
 performance = read_excel(path = 'performance.xlsx', range="B1:C1001")
-plot(performance*100, pch = 20, ylim=c(60,100))
-plot(performance*100, log="x", pch = 20, ylim=c(60,100))
+plot(performance*100, pch = 20, ylim=c(50,100))
+plot(performance*100, log="x", pch = 20, ylim=c(50,100))
+
+options(scipen=0)
+
 
 confusion_matrix = table(
   Actual = combined_data$Survived,
@@ -77,8 +80,50 @@ p1 + p2 +
   plot_layout(ncol = 2, guides = "collect") +
   plot_annotation(title = "Actual vs Predicted Survival by Sex")
 
-chisq.test(table(combined_data$Sex, combined_data$Survived))
-chisq.test(table(combined_data$Sex, combined_data$Prediction))
+chisq.test(table(combined_data$Sex, combined_data$Survived))$p.value * 100
+chisq.test(table(combined_data$Sex, combined_data$Prediction))$p.value * 100
+
+### Tests for survival based on age ###
+
+combined_data$AgeGroup = cut(
+  combined_data$Age,
+  breaks = c(0, 5, 10, 20, 40, 60, Inf),
+  labels = c("0-5", "5-10", "10-20", "20-40", "40-60", "60+"),
+  include.lowest = TRUE
+)
+
+p14 = ggplot(combined_data, aes(x = AgeGroup, fill = Survived)) +
+  geom_bar(position = "fill") +
+  labs(
+    title = "Actual",
+    x = "Age",
+    y = "Proportion",
+    fill = "Survived"
+  ) +
+  theme_minimal()+
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+p15 = ggplot(combined_data, aes(x = AgeGroup, fill = Prediction)) +
+  geom_bar(position = "fill") +
+  labs(
+    title = "Predicted",
+    x = "Age",
+    y = "Proportion",
+    fill = "Survived"
+  ) +
+  theme_minimal()+
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+p14 + p15 + 
+  plot_layout(ncol = 2, guides = "collect") +
+  plot_annotation(title = "Actual vs Predicted Survival by Age")
+
+chisq.test(table(combined_data$AgeGroup, combined_data$Survived))$p.value * 100 
+chisq.test(table(combined_data$AgeGroup, combined_data$Prediction))$p.value * 100
 
 ### Tests for survival based on passenger class ###
 
@@ -107,9 +152,21 @@ p3 + p4 +
   plot_layout(ncol = 2, guides = "collect") +
   plot_annotation(title = "Actual vs Predicted Survival by Passenger Class")
 
+chisq.test(table(combined_data$Pclass, combined_data$Survived))$p.value * 100
+chisq.test(table(combined_data$Pclass, combined_data$Prediction))$p.value * 100
+
+
 ### Tests for survival based on siblings or spouses onboard ###
 
-p5 = ggplot(combined_data, aes(x = SibSp, fill = Survived)) +
+combined_data$SibSpGroup = cut(
+  combined_data$SibSp,
+  breaks = c(-1, 0, 1, 2, Inf),
+  labels = c("0", "1", "2", "3+"),
+  include.lowest = TRUE
+)
+
+
+p5 = ggplot(combined_data, aes(x = SibSpGroup, fill = Survived)) +
   geom_bar(position = "fill") +
   labs(
     title = "Actual",
@@ -117,10 +174,9 @@ p5 = ggplot(combined_data, aes(x = SibSp, fill = Survived)) +
     y = "Proportion",
     fill = "Survived"
   ) +
-  theme_minimal()+
-  scale_x_continuous(breaks = seq(0, 5, by = 1))
+  theme_minimal()
 
-p6 = ggplot(combined_data, aes(x = SibSp, fill = Prediction)) +
+p6 = ggplot(combined_data, aes(x = SibSpGroup, fill = Prediction)) +
   geom_bar(position = "fill") +
   labs(
     title = "Predicted",
@@ -128,16 +184,26 @@ p6 = ggplot(combined_data, aes(x = SibSp, fill = Prediction)) +
     y = "Proportion",
     fill = "Survived"
   ) +
-  theme_minimal()+
-  scale_x_continuous(breaks = seq(0, 5, by = 1))
+  theme_minimal()
 
 p5 + p6 + 
   plot_layout(ncol = 2, guides = "collect") +
   plot_annotation(title = "Actual vs Predicted Survival by number of siblings\nor spouses onboard")
 
+chisq.test(table(combined_data$SibSpGroup, combined_data$Survived))$p.value * 100
+chisq.test(table(combined_data$SibSpGroup, combined_data$Prediction))$p.value * 100
+
 ### Tests for survival based on parents or children onboard ###
 
-p7 = ggplot(combined_data, aes(x = Parch, fill = Survived)) +
+combined_data$ParchGroup = cut(
+  combined_data$Parch,
+  breaks = c(-1, 0, 1, 2, Inf),
+  labels = c("0", "1", "2", "3+"),
+  include.lowest = TRUE
+)
+
+
+p7 = ggplot(combined_data, aes(x = ParchGroup, fill = Survived)) +
   geom_bar(position = "fill") +
   labs(
     title = "Actual",
@@ -145,10 +211,9 @@ p7 = ggplot(combined_data, aes(x = Parch, fill = Survived)) +
     y = "Proportion",
     fill = "Survived"
   ) +
-  theme_minimal()+
-  scale_x_continuous(breaks = seq(0, 6, by = 1))
+  theme_minimal()
 
-p8 = ggplot(combined_data, aes(x = Parch, fill = Prediction)) +
+p8 = ggplot(combined_data, aes(x = ParchGroup, fill = Prediction)) +
   geom_bar(position = "fill") +
   labs(
     title = "Predicted",
@@ -156,15 +221,18 @@ p8 = ggplot(combined_data, aes(x = Parch, fill = Prediction)) +
     y = "Proportion",
     fill = "Survived"
   ) +
-  theme_minimal()+
-  scale_x_continuous(breaks = seq(0, 6, by = 1))
+  theme_minimal()
+
 
 p7 + p8 + 
   plot_layout(ncol = 2, guides = "collect") +
   plot_annotation(title = "Actual vs Predicted Survival by number of parents\nor children onboard")
 
-chisq.test(table(combined_data$Parch, combined_data$Survived))
-chisq.test(table(combined_data$Parch, combined_data$Prediction))
+
+
+
+chisq.test(table(combined_data$ParchGroup, combined_data$Survived))$p.value * 100
+chisq.test(table(combined_data$ParchGroup, combined_data$Prediction))$p.value * 100
 
 ### Tests for survival based on embarked port ###
 
@@ -204,6 +272,8 @@ p9 + p10 +
 chisq.test(table(combined_data$Embarked, combined_data$Survived))$p.value * 100
 chisq.test(table(combined_data$Embarked, combined_data$Prediction))$p.value * 100
 
+### Tests for survival based on fare ###
+
 combined_data$FareGroup = cut(
   combined_data$Fare,
   breaks = c(0, 10, 25, 50, 100, 999999),
@@ -212,7 +282,20 @@ combined_data$FareGroup = cut(
 )
 
 
-p11 = ggplot(combined_data, aes(x = FareGroup, fill = Survived)) +
+p11 = ggplot(combined_data, aes(x = Fare))+
+  geom_histogram(colour="black", position = "identity", bins = 30)+
+  labs(
+    title = "Distribution of fare paid",
+    x = "Fare",
+    y = "Frequency"
+  )+
+  theme_minimal()
+
+p11
+
+
+
+p12 = ggplot(combined_data, aes(x = FareGroup, fill = Survived)) +
   geom_bar(position = "fill") +
   labs(
     title = "Actual",
@@ -226,7 +309,7 @@ p11 = ggplot(combined_data, aes(x = FareGroup, fill = Survived)) +
   )
 
 
-p12 = ggplot(combined_data, aes(x = FareGroup, fill = Prediction)) +
+p13 = ggplot(combined_data, aes(x = FareGroup, fill = Prediction)) +
   geom_bar(position = "fill") +
   labs(
     title = "Predicted",
@@ -239,7 +322,11 @@ p12 = ggplot(combined_data, aes(x = FareGroup, fill = Prediction)) +
     axis.text.x = element_text(angle = 45, hjust = 1)
   )
 
-p11 + p12 + 
+p12 + p13 + 
   plot_layout(ncol = 2, guides = "collect") +
   plot_annotation(title = "Actual vs Predicted Survival by Fare")
+
+chisq.test(table(combined_data$FareGroup, combined_data$Survived))$p.value * 100
+chisq.test(table(combined_data$FareGroup, combined_data$Prediction))$p.value * 100
+
 

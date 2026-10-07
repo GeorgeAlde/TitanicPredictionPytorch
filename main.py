@@ -103,7 +103,7 @@ with torch.no_grad():
     out = (torch.sigmoid(out) > 0.5).int()
     out = out.cpu().numpy().flatten()
 
-    data.write_predictions(out)
+    #data.write_predictions(out)
 
 
 
