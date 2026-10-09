@@ -1,1 +1,1 @@
-Please see FinalReport.pdf, this contains an explanation and the results of the project.
+Please see FinalReport.pdf, this contains all the results and an explanation of the project.
